@@ -1,0 +1,39 @@
+name: data-source-smoke
+
+on:
+  push:
+    branches: [native-implementation]
+    paths:
+      - '.github/workflows/data-source-smoke.yml'
+
+jobs:
+  verify-data-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download public Kaggle dataset
+        run: |
+          curl --fail --location --retry 3 \
+            https://www.kaggle.com/api/v1/datasets/download/mlg-ulb/creditcardfraud \
+            --output /tmp/creditcardfraud.zip
+          unzip -q /tmp/creditcardfraud.zip -d /tmp/creditcardfraud
+      - name: Verify dataset contract
+        run: |
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+
+          path = Path('/tmp/creditcardfraud/creditcard.csv')
+          with path.open(newline='') as file:
+              reader = csv.DictReader(file)
+              rows = 0
+              frauds = 0
+              for row in reader:
+                  rows += 1
+                  frauds += int(row['Class'])
+
+          expected = ['Time', *[f'V{i}' for i in range(1, 29)], 'Amount', 'Class']
+          assert reader.fieldnames == expected, reader.fieldnames
+          assert rows == 284807, rows
+          assert frauds == 492, frauds
+          print(f'validated rows={rows} frauds={frauds}')
+          PY
