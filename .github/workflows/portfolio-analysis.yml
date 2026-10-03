@@ -4,6 +4,7 @@ on:
   push:
     branches: [native-implementation]
     paths:
+      - 'src/**'
       - 'notebooks/**'
       - '.github/workflows/portfolio-analysis.yml'
   workflow_dispatch:
