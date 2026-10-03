@@ -1,0 +1,72 @@
+name: portfolio-analysis
+
+on:
+  push:
+    branches: [native-implementation]
+    paths:
+      - 'notebooks/01_data_understanding.ipynb'
+      - 'notebooks/02_baseline_logistic_regression.ipynb'
+      - 'notebooks/03_ml_benchmark.ipynb'
+      - '.github/workflows/portfolio-analysis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  execute-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: native-implementation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install analysis dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn xgboost matplotlib jupyter nbconvert
+          pip install --index-url https://download.pytorch.org/whl/cpu torch
+      - name: Download ULB credit-card dataset
+        run: |
+          curl --fail --location --retry 3 \
+            https://www.kaggle.com/api/v1/datasets/download/mlg-ulb/creditcardfraud \
+            --output /tmp/creditcardfraud.zip
+          unzip -q /tmp/creditcardfraud.zip -d /tmp/creditcardfraud
+          mkdir -p data
+          cp /tmp/creditcardfraud/creditcard.csv data/creditcard.csv
+      - name: Execute notebooks
+        run: |
+          jupyter nbconvert --to notebook --execute --inplace notebooks/01_data_understanding.ipynb --ExecutePreprocessor.timeout=900
+          jupyter nbconvert --to notebook --execute --inplace notebooks/02_baseline_logistic_regression.ipynb --ExecutePreprocessor.timeout=900
+          jupyter nbconvert --to notebook --execute --inplace notebooks/03_ml_benchmark.ipynb --ExecutePreprocessor.timeout=1800
+      - name: Verify generated evidence
+        run: |
+          test -f outputs/metrics/data_summary.json
+          test -f outputs/metrics/logistic_baseline_validation.json
+          test -f outputs/metrics/model_benchmark_validation.csv
+          test -f outputs/metrics/model_selection.json
+          test -f outputs/figures/01_class_distribution.png
+          test -f outputs/figures/02_amount_distribution.png
+          test -f outputs/figures/03_precision_recall_curves.png
+          test -f outputs/figures/04_roc_curves.png
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          selection = json.loads(Path('outputs/metrics/model_selection.json').read_text())
+          assert selection['test_evaluated'] is False
+          assert 0.0 <= selection['selected_threshold'] <= 1.0
+          print(selection)
+          PY
+      - name: Commit executed evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add notebooks/01_data_understanding.ipynb notebooks/02_baseline_logistic_regression.ipynb notebooks/03_ml_benchmark.ipynb outputs/
+          if ! git diff --cached --quiet; then
+            git commit -m "analysis: execute validation benchmark [skip ci]"
+            git push origin HEAD:native-implementation
+          fi
