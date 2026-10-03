@@ -53,5 +53,19 @@ def test_best_f1_threshold_returns_threshold_from_sweep():
 
     threshold = best_f1_threshold(y_true, y_score)
 
-    assert 0.0 <= threshold <= 1.0
+    assert threshold == pytest.approx(0.4)
     assert classification_metrics(y_true, y_score, threshold)["f1"] == pytest.approx(1.0)
+
+
+def test_best_f1_threshold_does_not_call_bruteforce_threshold_table(monkeypatch):
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("best_f1_threshold must not use threshold_table")
+
+    monkeypatch.setattr("src.evaluation.threshold_table", fail_if_called)
+
+    y_true = np.array([0, 0, 1, 1])
+    y_score = np.array([0.1, 0.3, 0.4, 0.9])
+
+    threshold = best_f1_threshold(y_true, y_score)
+
+    assert threshold == pytest.approx(0.4)
