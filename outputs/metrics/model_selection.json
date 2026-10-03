@@ -1,0 +1,9 @@
+{
+  "primary_metric": "validation_pr_auc",
+  "selected_model": "XGBoost",
+  "selected_model_validation_pr_auc": 0.8086934701854812,
+  "selected_threshold": 0.9709761738777161,
+  "threshold_selection_rule": "maximum validation F1",
+  "explainability_model": "XGBoost",
+  "test_evaluated": false
+}

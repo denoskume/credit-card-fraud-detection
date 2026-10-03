@@ -1,0 +1,15 @@
+{
+  "assumptions": {
+    "missed_fraud_cost_multiplier": 1.0,
+    "false_positive_review_cost": 5.0,
+    "detected_fraud_recovery_rate": 0.0
+  },
+  "tn": 56858,
+  "fp": 5,
+  "fn": 21,
+  "tp": 78,
+  "missed_fraud_cost": 2748.86,
+  "false_positive_cost": 25.0,
+  "recovered_fraud_value": 0.0,
+  "net_cost": 2773.86
+}

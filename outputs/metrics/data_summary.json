@@ -1,0 +1,9 @@
+{
+  "rows": 284807,
+  "features": 30,
+  "legitimate_transactions": 284315,
+  "fraudulent_transactions": 492,
+  "fraud_rate": 0.001727485630620034,
+  "missing_values": 0,
+  "duplicate_rows": 1081
+}

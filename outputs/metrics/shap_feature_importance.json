@@ -1,0 +1,67 @@
+{
+  "model": "XGBoost",
+  "sample_size": 1000,
+  "interpretation": "model contribution magnitude; not causal meaning",
+  "top_features": [
+    {
+      "feature": "V4",
+      "mean_abs_shap": 1.1469374753229995
+    },
+    {
+      "feature": "V14",
+      "mean_abs_shap": 0.47718686171455227
+    },
+    {
+      "feature": "V8",
+      "mean_abs_shap": 0.42334682416738856
+    },
+    {
+      "feature": "V12",
+      "mean_abs_shap": 0.3250024430348315
+    },
+    {
+      "feature": "V15",
+      "mean_abs_shap": 0.3148083713907129
+    },
+    {
+      "feature": "V27",
+      "mean_abs_shap": 0.30217611032295905
+    },
+    {
+      "feature": "V18",
+      "mean_abs_shap": 0.27875895501777226
+    },
+    {
+      "feature": "Amount",
+      "mean_abs_shap": 0.27204784441847607
+    },
+    {
+      "feature": "V1",
+      "mean_abs_shap": 0.2468369633216077
+    },
+    {
+      "feature": "V7",
+      "mean_abs_shap": 0.22259877842804754
+    },
+    {
+      "feature": "V26",
+      "mean_abs_shap": 0.21488664752464748
+    },
+    {
+      "feature": "V6",
+      "mean_abs_shap": 0.20416680052456204
+    },
+    {
+      "feature": "V11",
+      "mean_abs_shap": 0.19378166721671272
+    },
+    {
+      "feature": "V3",
+      "mean_abs_shap": 0.16724606029820974
+    },
+    {
+      "feature": "Time",
+      "mean_abs_shap": 0.1644516761633297
+    }
+  ]
+}
