@@ -4,9 +4,7 @@ on:
   push:
     branches: [native-implementation]
     paths:
-      - 'notebooks/01_data_understanding.ipynb'
-      - 'notebooks/02_baseline_logistic_regression.ipynb'
-      - 'notebooks/03_ml_benchmark.ipynb'
+      - 'notebooks/**'
       - '.github/workflows/portfolio-analysis.yml'
   workflow_dispatch:
 
@@ -27,7 +25,7 @@ jobs:
       - name: Install analysis dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy pandas scikit-learn xgboost matplotlib jupyter nbconvert
+          pip install numpy pandas scikit-learn xgboost shap matplotlib jupyter nbconvert
           pip install --index-url https://download.pytorch.org/whl/cpu torch
       - name: Download ULB credit-card dataset
         run: |
@@ -42,31 +40,45 @@ jobs:
           jupyter nbconvert --to notebook --execute --inplace notebooks/01_data_understanding.ipynb --ExecutePreprocessor.timeout=900
           jupyter nbconvert --to notebook --execute --inplace notebooks/02_baseline_logistic_regression.ipynb --ExecutePreprocessor.timeout=900
           jupyter nbconvert --to notebook --execute --inplace notebooks/03_ml_benchmark.ipynb --ExecutePreprocessor.timeout=1800
+          jupyter nbconvert --to notebook --execute --inplace notebooks/04_explainable_ai.ipynb --ExecutePreprocessor.timeout=1800
+          jupyter nbconvert --to notebook --execute --inplace notebooks/05_business_impact.ipynb --ExecutePreprocessor.timeout=1800
       - name: Verify generated evidence
         run: |
           test -f outputs/metrics/data_summary.json
           test -f outputs/metrics/logistic_baseline_validation.json
           test -f outputs/metrics/model_benchmark_validation.csv
           test -f outputs/metrics/model_selection.json
+          test -f outputs/metrics/shap_feature_importance.json
+          test -f outputs/metrics/final_test_metrics.json
+          test -f outputs/metrics/final_test_business_cost.json
+          test -f outputs/metrics/business_cost_sensitivity_validation.csv
           test -f outputs/figures/01_class_distribution.png
           test -f outputs/figures/02_amount_distribution.png
           test -f outputs/figures/03_precision_recall_curves.png
           test -f outputs/figures/04_roc_curves.png
+          test -f outputs/figures/05_shap_summary.png
+          test -f outputs/figures/06_business_cost_sensitivity.png
           python - <<'PY'
           import json
           from pathlib import Path
 
           selection = json.loads(Path('outputs/metrics/model_selection.json').read_text())
+          final_metrics = json.loads(Path('outputs/metrics/final_test_metrics.json').read_text())
           assert selection['test_evaluated'] is False
           assert 0.0 <= selection['selected_threshold'] <= 1.0
-          print(selection)
+          assert final_metrics['model'] == selection['selected_model']
+          assert final_metrics['threshold'] == selection['selected_threshold']
+          assert 0.0 <= final_metrics['pr_auc'] <= 1.0
+          print('selection:', selection)
+          print('final:', final_metrics)
           PY
       - name: Commit executed evidence
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add notebooks/01_data_understanding.ipynb notebooks/02_baseline_logistic_regression.ipynb notebooks/03_ml_benchmark.ipynb outputs/
+          git pull --rebase origin native-implementation
+          git add notebooks/ outputs/
           if ! git diff --cached --quiet; then
-            git commit -m "analysis: execute validation benchmark [skip ci]"
+            git commit -m "analysis: execute complete fraud study [skip ci]"
             git push origin HEAD:native-implementation
           fi
