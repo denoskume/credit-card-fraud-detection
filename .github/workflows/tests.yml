@@ -20,4 +20,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy pandas scikit-learn pytest
       - name: Run tests
-        run: pytest -q
+        run: python -m pytest -q
