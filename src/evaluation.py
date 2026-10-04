@@ -4,6 +4,7 @@ from sklearn.metrics import (
     average_precision_score,
     confusion_matrix,
     f1_score,
+    precision_recall_curve,
     precision_score,
     recall_score,
     roc_auc_score,
@@ -88,6 +89,24 @@ def threshold_table(
 
 
 def best_f1_threshold(fraud_labels, fraud_scores) -> float:
-    threshold_results = threshold_table(fraud_labels, fraud_scores)
-    strongest_row = threshold_results.loc[threshold_results["f1"].idxmax()]
-    return float(strongest_row["threshold"])
+    label_array, score_array = _validate_binary_inputs(fraud_labels, fraud_scores)
+    precision_values, recall_values, threshold_values = precision_recall_curve(
+        label_array,
+        score_array,
+    )
+
+    if threshold_values.size == 0:
+        return 0.5
+
+    precision_values = precision_values[:-1]
+    recall_values = recall_values[:-1]
+    denominator = precision_values + recall_values
+    f1_values = np.divide(
+        2 * precision_values * recall_values,
+        denominator,
+        out=np.zeros_like(denominator),
+        where=denominator != 0,
+    )
+
+    strongest_index = int(np.argmax(f1_values))
+    return float(threshold_values[strongest_index])
