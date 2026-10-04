@@ -1,18 +1,28 @@
 # Data
 
-This project uses the public ULB / Worldline credit card fraud dataset commonly distributed as `creditcard.csv`.
+This project uses the public ULB / Worldline credit card fraud dataset released through OpenML as dataset ID `1597`.
 
-Expected file:
+The dataset contains 284,807 real credit-card transactions made by European cardholders over two days in September 2013, including 492 fraud cases.
+
+Expected local file:
 
 ```text
 data/creditcard.csv
 ```
 
-The dataset contains anonymized transaction features `V1` to `V28`, plus `Time`, `Amount`, and the binary target `Class`.
+Download and verify it automatically with:
 
-- `Class = 0`: legitimate transaction
-- `Class = 1`: fraudulent transaction
+```bash
+python scripts/download_data.py
+```
 
-The raw CSV is intentionally excluded from Git. Download the dataset from its public source and place `creditcard.csv` in this directory before running the analysis.
+The downloader retrieves the public OpenML copy, converts it to the CSV format expected by the project, and verifies:
 
-The project validates the expected schema before any model is trained.
+- 284,807 rows
+- 31 columns
+- 492 fraudulent transactions
+- columns `Time`, `V1` to `V28`, `Amount`, `Class`
+
+`Class = 0` means a legitimate transaction and `Class = 1` means fraud.
+
+The raw dataset is intentionally excluded from Git and must remain local.
