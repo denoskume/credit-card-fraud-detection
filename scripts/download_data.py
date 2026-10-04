@@ -43,6 +43,21 @@ def convert_arff_to_csv(
         raise ValueError("Downloaded OpenML file does not contain an ARFF data section.")
 
 
+def normalize_downloaded_dataset(transaction_dataset: pd.DataFrame) -> pd.DataFrame:
+    normalized_dataset = transaction_dataset.copy()
+    normalized_class = (
+        normalized_dataset["Class"]
+        .astype(str)
+        .str.strip()
+        .str.strip("'\"")
+    )
+    normalized_dataset["Class"] = pd.to_numeric(
+        normalized_class,
+        errors="raise",
+    ).astype(int)
+    return normalized_dataset
+
+
 def validate_downloaded_dataset(transaction_dataset: pd.DataFrame) -> None:
     if transaction_dataset.columns.tolist() != EXPECTED_COLUMNS:
         raise ValueError("Downloaded dataset columns do not match the ULB dataset schema.")
@@ -50,6 +65,12 @@ def validate_downloaded_dataset(transaction_dataset: pd.DataFrame) -> None:
     if len(transaction_dataset) != EXPECTED_ROWS:
         raise ValueError(
             f"Expected {EXPECTED_ROWS:,} transactions, found {len(transaction_dataset):,}."
+        )
+
+    observed_classes = set(transaction_dataset["Class"].unique())
+    if observed_classes != {0, 1}:
+        raise ValueError(
+            f"Expected binary Class values {{0, 1}}, found {sorted(observed_classes)}."
         )
 
     fraud_count = int(transaction_dataset["Class"].sum())
@@ -68,7 +89,9 @@ def download_dataset(destination_path: Path) -> Path:
     try:
         convert_arff_to_csv(temporary_arff_path, destination_path)
         transaction_dataset = pd.read_csv(destination_path)
+        transaction_dataset = normalize_downloaded_dataset(transaction_dataset)
         validate_downloaded_dataset(transaction_dataset)
+        transaction_dataset.to_csv(destination_path, index=False)
     except Exception:
         destination_path.unlink(missing_ok=True)
         raise
