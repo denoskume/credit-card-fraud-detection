@@ -2,7 +2,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.download_data import convert_arff_to_csv, validate_downloaded_dataset
+from scripts.download_data import (
+    convert_arff_to_csv,
+    normalize_downloaded_dataset,
+    validate_downloaded_dataset,
+)
 
 
 def test_convert_arff_to_csv_preserves_expected_columns(tmp_path: Path):
@@ -28,6 +32,22 @@ def test_convert_arff_to_csv_preserves_expected_columns(tmp_path: Path):
     assert converted_dataset.columns.tolist() == expected_columns
     assert converted_dataset.shape == (2, 4)
     assert converted_dataset["Class"].tolist() == [0, 1]
+
+
+def test_normalize_downloaded_dataset_converts_quoted_class_labels():
+    transaction_dataset = pd.DataFrame(
+        {
+            "Time": [0.0, 1.0],
+            "V1": [0.1, -0.2],
+            "Amount": [25.0, 100.0],
+            "Class": ["'0'", "'1'"],
+        }
+    )
+
+    normalized_dataset = normalize_downloaded_dataset(transaction_dataset)
+
+    assert normalized_dataset["Class"].tolist() == [0, 1]
+    assert pd.api.types.is_integer_dtype(normalized_dataset["Class"])
 
 
 def test_validate_downloaded_dataset_accepts_real_dataset_signature():
