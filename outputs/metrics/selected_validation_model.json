@@ -1,0 +1,8 @@
+{
+  "model": "XGBoost",
+  "selection_metric": "pr_auc",
+  "selection_split": "validation",
+  "pr_auc": 0.8071632995879947,
+  "roc_auc": 0.9831074472945537,
+  "threshold": 0.9330846071243286
+}

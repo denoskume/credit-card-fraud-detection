@@ -1,0 +1,24 @@
+{
+  "model": "XGBoost",
+  "selection_split": "validation",
+  "selection_rule": "minimum illustrative expected cost",
+  "threshold": 0.6484539222717475,
+  "assumptions": {
+    "missed_fraud_multiplier": 1.0,
+    "false_positive_review_cost": 5.0,
+    "recoverable_fraud_fraction": 0.0,
+    "note": "Illustrative scenario assumptions, not observed business facts."
+  },
+  "validation_metrics": {
+    "threshold": 0.6484539222717475,
+    "roc_auc": 0.9831074472945537,
+    "pr_auc": 0.8071632995879947,
+    "precision": 0.7017543859649122,
+    "recall": 0.8163265306122449,
+    "f1": 0.7547169811320755,
+    "tn": 56829,
+    "fp": 34,
+    "fn": 18,
+    "tp": 80
+  }
+}
