@@ -1,8 +1,15 @@
 import numpy as np
 import shap
+from xgboost import XGBClassifier
 
 
 def build_shap_explainer(model, background):
+    if isinstance(model, XGBClassifier):
+        return shap.TreeExplainer(
+            model,
+            feature_perturbation="tree_path_dependent",
+        )
+
     return shap.Explainer(model, background)
 
 
