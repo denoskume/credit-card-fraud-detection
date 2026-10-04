@@ -58,3 +58,13 @@ def test_best_f1_threshold_selects_strongest_candidate():
     selected_threshold = best_f1_threshold(fraud_labels, fraud_scores)
 
     assert 0.3 < selected_threshold <= 0.6
+
+
+def test_best_f1_threshold_can_select_score_above_point_99():
+    fraud_labels = np.array([0, 0, 1, 1])
+    fraud_scores = np.array([0.10, 0.995, 0.996, 0.999])
+
+    selected_threshold = best_f1_threshold(fraud_labels, fraud_scores)
+
+    assert selected_threshold > 0.99
+    assert selected_threshold <= 0.996
