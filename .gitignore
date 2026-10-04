@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw data
+data/*.csv
+!data/README.md
+
+# Generated local artifacts
+*.log
+.DS_Store
